@@ -57,13 +57,3 @@ Thumbs.db
 # --- Playwright output -------------------------------------------------------------
 frontend/test-results/
 frontend/playwright-report/
-
-# --- Working notes: kept locally, not part of the published project -------------
-CLAUDE.md
-.claude/
-docs/reports/
-docs/plans/
-docs/open-questions.md
-docs/PROJECT_BRIEF.md
-.playwright-mcp/
-*.log
