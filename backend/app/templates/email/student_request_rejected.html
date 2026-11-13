@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:18px;margin:0 0 12px">Your registration request</h1>
+<p>Hello {{ name }},</p>
+<p>The administrator of <strong>{{ org_name }}</strong> rejected your registration request.</p>
+<p><strong>Reason:</strong> {{ reason }}</p>
+<p style="font-size:13px;color:#6b7280">For questions, contact the hostel office. Your request's personal data is deleted after 30 days.</p>
+{% endblock %}

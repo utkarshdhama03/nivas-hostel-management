@@ -1,0 +1,10 @@
+Hello {{ name }},
+
+Confirm that you registered "{{ org_name }}" by opening this link:
+
+{{ link_url }}
+
+The link works once and expires in {{ hours }} hours. If you didn't register, ignore this email.
+
+--
+{{ org_name }} · Hostel Management

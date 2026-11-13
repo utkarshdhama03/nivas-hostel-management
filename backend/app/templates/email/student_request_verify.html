@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:18px;margin:0 0 12px">Confirm your registration request</h1>
+<p>Hello {{ name }},</p>
+<p>You asked to register as a student at <strong>{{ org_name }}</strong>. Confirm your email address so the administrator can look at your request.</p>
+<p style="margin:20px 0"><a href="{{ link_url }}" style="background:#1d4ed8;color:#ffffff;padding:10px 16px;border-radius:6px;text-decoration:none">Confirm my email</a></p>
+<p style="font-size:13px;color:#6b7280">The link works once and expires in {{ hours }} hours. If it wasn't you, ignore this email: the request is deleted.</p>
+{% endblock %}

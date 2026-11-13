@@ -1,0 +1,10 @@
+Hello {{ name }},
+
+An account was created for you at {{ org_name }}. Set your password here:
+
+{{ link_url }}
+
+The link works once and expires in {{ days }} days.
+
+--
+{{ org_name }} · Hostel Management

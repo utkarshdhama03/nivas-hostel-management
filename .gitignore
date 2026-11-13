@@ -1,0 +1,69 @@
+# =============================================================================
+# .gitignore — what Git must never track.
+# The secret/data rules are a safety net: secrets and keys live OUTSIDE this
+# folder (see docs/03 §5.5.1 and README), but if one is ever copied in by
+# mistake, Git will refuse to pick it up. The quality gate's gitleaks scan
+# (scripts/check.sh) is a second, independent guard.
+# =============================================================================
+
+# --- Secrets, environment files and encryption keys --------------------------
+.env
+.env.*
+!.env.example
+*.env
+!*.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*keys*.json
+*keyring*
+hms-secrets/
+secrets/
+
+# --- Runtime data: uploads, database files, backups --------------------------
+data/
+# ...except the password blocklist shipped with the code (Q80): not runtime data, not secret.
+!backend/app/core/data/
+uploads/
+backups/
+pgdata/
+pgbackrest/
+*.dump
+*.backup
+*.sql.gz
+
+# --- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Node / frontend ----------------------------------------------------------
+node_modules/
+dist/
+*.tsbuildinfo
+
+# --- Tools, editors and OS clutter ----------------------------------------------
+.vscode/
+.deepeval/
+.DS_Store
+Thumbs.db
+
+# --- Playwright output -------------------------------------------------------------
+frontend/test-results/
+frontend/playwright-report/
+
+# --- Working notes: kept locally, not part of the published project -------------
+CLAUDE.md
+.claude/
+docs/reports/
+docs/plans/
+docs/open-questions.md
+docs/PROJECT_BRIEF.md
+.playwright-mcp/
+*.log

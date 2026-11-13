@@ -1,0 +1,169 @@
+# =============================================================================
+# Local development environment (docs/02 §14, docs/06 Phase 0).
+#   docker compose up -d                 start db, mailpit, api, worker, web
+#   docker compose run --rm tools ...    migrations, tests, quality gate
+#
+# Secrets: every password and key comes from ${HMS_SECRETS_DIR}, a folder
+# OUTSIDE the project (set in the git-ignored .env). Nothing secret is in here.
+# Ports: bound to 127.0.0.1 so nothing is reachable from the network.
+# =============================================================================
+name: hms
+
+x-backend: &backend
+  build:
+    context: ./backend
+  image: hms-backend:dev
+  volumes:
+    - ./backend:/app                 # live code; the virtualenv lives in the image at /opt/venv
+    - uploads:/data/uploads          # uploaded files (Phase 3)
+  environment: &backend-env
+    HMS_DB_HOST: db
+    HMS_DB_PORT: "5432"
+    # The development database. scripts/e2e.sh points the stack at hms_e2e for its run, then back.
+    HMS_DB_NAME: ${HMS_APP_DB:-hms}
+    HMS_DATA_KEYS_FILE: /run/secrets/data_keys
+    HMS_SMTP_HOST: mailpit
+    HMS_SMTP_PORT: "1025"
+    HMS_UPLOAD_DIR: /data/uploads    # a named volume; never served as static files (02 §9)
+    # Windows bind mounts don't deliver file-change events into Linux
+    # containers, so uvicorn's reloader (watchfiles) must poll (Q7).
+    WATCHFILES_FORCE_POLLING: "true"
+  secrets:
+    - data_keys
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    build: ./docker/db
+    image: hms-db:18
+    env_file:
+      - ${HMS_SECRETS_DIR:?Set HMS_SECRETS_DIR in .env}/hms-admin.env
+      - ${HMS_SECRETS_DIR}/hms-app.env     # needed once, to create the app roles
+      - ${HMS_SECRETS_DIR}/pgbackrest.env  # backup repository + dump encryption (docs/runbooks/keys.md)
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      # "default_volume" until HMS_BACKUP_DIR points to another disk (Q5); shown on the health page.
+      HMS_BACKUP_LOCATION: ${HMS_BACKUP_DIR:+external_path}
+    # Continuous WAL archiving into the pgBackRest repository (docs/02 §12). A WAL segment is
+    # archived at least every 5 minutes, which bounds how much a lost disk could lose.
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=pgbackrest --stanza=hms archive-push %p
+      - -c
+      - archive_timeout=300
+    ports:
+      # Host port 5433 by default: a native Windows PostgreSQL service may already
+      # own 5432. Containers still reach the database as db:5432 inside Docker.
+      - "127.0.0.1:${HMS_DB_HOST_PORT:-5433}:5432"
+    volumes:
+      # PostgreSQL 18 images keep data under /var/lib/postgresql/18/...; mount the parent.
+      - pgdata:/var/lib/postgresql
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+      # The backup repository, dumps and file copies. DEFAULT: a volume on the SAME disk as the
+      # database, which doesn't survive a disk failure. Set HMS_BACKUP_DIR in .env to a second
+      # drive or an external disk (Q5; docs/runbooks/restore.md).
+      - ${HMS_BACKUP_DIR:-hms_backups}:/var/lib/pgbackrest
+      - uploads:/data/uploads:ro          # copied daily to the backup location
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    ports:
+      - "127.0.0.1:8025:8025"   # web inbox
+      - "127.0.0.1:1025:1025"   # SMTP
+
+  api:
+    <<: *backend
+    env_file:
+      - ${HMS_SECRETS_DIR}/hms-app.env      # app passwords only, never the admin file
+      - path: ${HMS_SECRETS_DIR}/hms-mail.env  # D88: Gmail address + app password; optional (Mailpit without it)
+        required: false
+    environment:
+      <<: *backend-env
+      # Q72 default 3; scripts/e2e.sh sets HMS_E2E_REGISTRATIONS for its run, then restores it.
+      HMS_REGISTRATIONS_PER_IP_HOUR: ${HMS_E2E_REGISTRATIONS:-3}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  worker:
+    <<: *backend
+    env_file:
+      - ${HMS_SECRETS_DIR}/hms-app.env
+      - path: ${HMS_SECRETS_DIR}/hms-mail.env  # D88: the worker sends the email
+        required: false
+    environment:
+      <<: *backend-env
+    command: python -m app.worker
+
+  web:
+    image: node:24.22.2-trixie-slim
+    working_dir: /web
+    volumes:
+      - ./frontend:/web
+      - web_node_modules:/web/node_modules   # Linux-built modules stay inside Docker
+    environment:
+      VITE_USE_POLLING: "true"               # same reason as WATCHFILES_FORCE_POLLING
+      VITE_API_TARGET: http://api:8000
+    command: sh scripts/start-dev.sh         # installs only when the lockfile changed (works offline)
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - api
+
+  tools:
+    <<: *backend
+    profiles: ["tools"]                      # never starts with "up"; use "run --rm tools"
+    env_file:
+      - ${HMS_SECRETS_DIR}/hms-admin.env     # owner + superuser: migrations and test resets
+      - ${HMS_SECRETS_DIR}/hms-app.env
+    volumes:                                 # the backend's two mounts, plus the README for tests/test_docs.py
+      - ./backend:/app
+      - uploads:/data/uploads
+      - ./README.md:/repo/README.md:ro
+      - ./docs:/repo/docs:ro                 # tests/test_docs.py: 05's test names stay true
+    environment:
+      <<: *backend-env
+      HMS_TEST_DB_NAME: hms_test
+    command: bash
+
+  e2e:
+    # Playwright end-to-end tests (Q87):  docker compose run --rm e2e
+    # Shares the web container's network namespace, so the browser opens http://localhost:5173:
+    # the same origin as development (cookies marked Secure work on localhost, and the CSRF
+    # Origin check matches HMS_PUBLIC_URL). Needs the stack running: docker compose up -d
+    build: ./docker/e2e
+    image: hms-e2e:dev
+    profiles: ["tools"]
+    network_mode: "service:web"
+    volumes:
+      - ./frontend:/web
+      - web_node_modules:/web/node_modules
+    environment:
+      MAILPIT_API: http://mailpit:8025/api/v1
+    command: npx playwright test
+    depends_on:
+      - web
+      - mailpit
+
+volumes:
+  pgdata:
+  uploads:
+  hms_backups:
+  web_node_modules:
+
+secrets:
+  data_keys:
+    file: ${HMS_SECRETS_DIR}/data-keys.json

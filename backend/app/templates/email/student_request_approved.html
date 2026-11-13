@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:18px;margin:0 0 12px">Your registration was approved</h1>
+<p>Hello {{ name }},</p>
+<p>Welcome to <strong>{{ org_name }}</strong>. Your Student ID is <strong>{{ student_code }}</strong>.</p>
+<p>Sign in on Student sign-in with the organization sign-in name <strong>{{ org_slug }}</strong>, your email address or Student ID, and the password you chose.</p>
+<p style="margin:20px 0"><a href="{{ sign_in_url }}" style="background:#1d4ed8;color:#ffffff;padding:10px 16px;border-radius:6px;text-decoration:none">Student sign-in</a></p>
+{% endblock %}

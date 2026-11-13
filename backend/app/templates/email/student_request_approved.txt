@@ -1,0 +1,8 @@
+Hello {{ name }},
+
+Welcome to {{ org_name }}. Your Student ID is {{ student_code }}.
+
+Sign in on Student sign-in ({{ sign_in_url }}) with the organization sign-in name {{ org_slug }}, your email address or Student ID, and the password you chose.
+
+--
+{{ org_name }} · Hostel Management

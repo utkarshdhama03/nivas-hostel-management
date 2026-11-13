@@ -1,0 +1,16 @@
+# Store every text file with LF line endings.
+# Why: the code runs inside Linux containers. A shell script saved with Windows
+# CRLF endings fails there with "/bin/sh^M: bad interpreter" (docs/02 §14).
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Binary files: never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.pdf binary
+*.woff2 binary

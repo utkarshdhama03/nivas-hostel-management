@@ -1,0 +1,66 @@
+# Backend project definition (managed by uv, Q77).
+# "~=" allows patch updates only; the exact versions actually installed are
+# pinned in uv.lock, so every machine and container gets identical packages.
+[project]
+name = "hms-backend"
+version = "0.1.0"
+description = "Hostel Management System - backend (FastAPI modular monolith)"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi~=0.162.0",            # web framework (MIT)
+    "uvicorn[standard]~=0.54.0",   # ASGI server; [standard] adds watchfiles for --reload (BSD-3)
+    "sqlalchemy~=2.1.8",           # database toolkit / ORM (MIT)
+    "alembic~=1.20.1",             # schema migrations (MIT)
+    "psycopg[binary]~=3.3.8",      # PostgreSQL driver, prebuilt wheels (LGPL-3.0, used unmodified)
+    "pydantic-settings~=2.16.2",   # typed configuration from environment variables (MIT)
+    "pyjwt~=2.15.1",               # access/MFA tokens, HS256 with kid (MIT)
+    "argon2-cffi~=25.1.0",         # Argon2id password hashing (MIT)
+    "cryptography~=50.0.2",        # AES-256-GCM for TOTP secrets and identity documents (Apache-2.0/BSD), Q65
+    "jinja2~=3.1.6",               # email templates (BSD-3)
+    "email-validator~=2.3.0",      # email syntax checks for Pydantic EmailStr (Unlicense), Q86
+    "python-multipart~=0.0.33",    # multipart/form-data for CSV imports and file uploads (Apache-2.0)
+    "pillow~=13.0.0",              # decode and re-encode uploaded images, strips metadata (MIT-CMU/HPND)
+    "weasyprint~=70.0",            # PDF receipts from HTML (BSD-3), Q75
+]
+
+[dependency-groups]
+dev = [
+    "pytest~=9.2.0",               # tests (MIT)
+    "httpx~=0.28.1",               # required by FastAPI's TestClient (BSD-3)
+    "ruff~=0.17.4",                # lint + format (MIT)
+    "mypy~=2.4.1",                 # type checks (MIT)
+    "pip-audit~=2.10.1",           # known-vulnerability check (Apache-2.0), Q73
+    "pip-licenses~=5.5.5",         # licence listing (MIT), Q81
+    "faker~=40.44.0",              # synthetic test data (MIT), Q79
+    "time-machine~=3.6.0",         # freezes the clock in tests; the database follows via app.now (MIT), D67
+]
+
+[tool.uv]
+package = false                    # an application, not a library to publish
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "dbproof: Phase 0 database proof suite (runs against real PostgreSQL)",
+    "race: concurrency tests using two real connections",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/F/W basics, I import order, B bugbear, UP modern syntax, S bandit security
+# (S608 flags SQL built from strings - docs/05 WEB-1).
+select = ["E", "F", "W", "I", "B", "UP", "S"]
+ignore = ["S101"]                  # assert is how pytest works
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S311", "S608"]   # test fixtures use fake passwords and build SQL from trusted table names
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+packages = ["app"]

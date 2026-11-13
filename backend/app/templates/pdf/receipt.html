@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ payment.receipt_number }}</title>
+<style>
+  @page { size: A5; margin: 14mm; }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #1f2937; }
+  h1 { font-size: 15pt; margin: 0; }
+  .muted { color: #6b7280; font-size: 8.5pt; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10mm; }
+  td { padding: 2.5mm 0; border-bottom: 0.3mm solid #e5e7eb; }
+  td.amount { text-align: right; }
+  .total td { font-weight: bold; border-bottom: none; }
+  .void { color: #b91c1c; font-weight: bold; font-size: 13pt; margin-top: 6mm; }
+</style>
+</head>
+<body>
+  <h1>{{ org.name }}</h1>
+  <p class="muted">{{ profile.legal_name or "" }} {{ profile.address_line1 or "" }} {{ profile.city or "" }}</p>
+  <p><strong>Receipt {{ payment.receipt_number }}</strong><br>
+     <span class="muted">Received on {{ payment.received_on.strftime("%d-%m-%Y") }}</span></p>
+  <p>Received from <strong>{{ name }}</strong> ({{ student.student_code }})</p>
+  <table>
+    {% if dues %}<tr><td>Hostel dues</td><td class="amount">Rs {{ "%.2f"|format(dues) }}</td></tr>{% endif %}
+    {% if deposit %}<tr><td>Security deposit</td><td class="amount">Rs {{ "%.2f"|format(deposit) }}</td></tr>{% endif %}
+    <tr class="total"><td>Total</td><td class="amount">Rs {{ "%.2f"|format(payment.amount) }}</td></tr>
+  </table>
+  <p>Method: {{ payment.method.replace("_", " ") }}{% if payment.reference %} &middot; Reference {{ payment.reference }}{% endif %}</p>
+  {% if reversal %}<p class="void">REVERSED on {{ reversal.reversed_at.strftime("%d-%m-%Y") }}: {{ reversal.reason }}</p>{% endif %}
+  <p class="muted">Computer-generated receipt; no signature required.</p>
+</body>
+</html>

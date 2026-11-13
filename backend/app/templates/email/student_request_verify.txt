@@ -1,0 +1,10 @@
+Hello {{ name }},
+
+You asked to register as a student at {{ org_name }}. Confirm your email address so the administrator can look at your request:
+
+{{ link_url }}
+
+The link works once and expires in {{ hours }} hours. If it wasn't you, ignore this email: the request is deleted.
+
+--
+{{ org_name }} · Hostel Management

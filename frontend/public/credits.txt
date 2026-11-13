@@ -1,0 +1,20 @@
+Credits for the public pages of Nivas (frontend/src/pages/public/)
+
+Pictures
+  The illustrations on the front page (a hostel block with a student at the gate, and a student's
+  phone) are original drawings made for this project: inline SVG in
+  frontend/src/pages/public/illustrations.tsx. They are covered by the project's own licence.
+  No photographs are used: free-licence photo sites (Unsplash, Pexels) block automated downloads,
+  so original illustrations were used instead (decision of 11 November 2026).
+
+App icon and favicon
+  The Nivas mark (a house roof over a bed, white on the brand blue): an original drawing made for this
+  project. favicon.svg, apple-touch-icon.png, icon-192.png and icon-512.png are all drawn from the
+  same shapes by frontend/scripts/make_icons.py.
+
+Icons
+  Lucide (https://lucide.dev), ISC licence: the npm package lucide-react, already a dependency of
+  the web app.
+
+Font
+  Inter (https://rsms.me/inter/), SIL Open Font License 1.1, through @fontsource-variable/inter.

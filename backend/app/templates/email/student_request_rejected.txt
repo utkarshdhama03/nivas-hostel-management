@@ -1,0 +1,10 @@
+Hello {{ name }},
+
+The administrator of {{ org_name }} rejected your registration request.
+
+Reason: {{ reason }}
+
+For questions, contact the hostel office. Your request's personal data is deleted after 30 days.
+
+--
+{{ org_name }} · Hostel Management

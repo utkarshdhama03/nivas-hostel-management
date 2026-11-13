@@ -1,0 +1,10 @@
+{{ title }}
+
+{{ body }}
+{% if link_url %}
+
+Open in the app: {{ link_url }}
+{% endif %}
+
+--
+{{ org_name }} · Hostel Management

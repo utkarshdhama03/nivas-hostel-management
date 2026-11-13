@@ -1,0 +1,10 @@
+Hello {{ name }},
+{% if has == "account" %}
+Someone asked to register at {{ org_name }} with this email address, but it already has an account. Sign in on Student sign-in ({{ sign_in_url }}), or use "Forgot password?" there.
+{% else %}
+Someone asked to register at {{ org_name }} with this email address, but a request with it is already open. Sign in on Student sign-in ({{ sign_in_url }}) with that request's email and password to see where it stands.
+{% endif %}
+No new request was made. If it wasn't you, ignore this email.
+
+--
+{{ org_name }} · Hostel Management

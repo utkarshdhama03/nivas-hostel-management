@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:18px;margin:0 0 12px">About your registration request</h1>
+<p>Hello {{ name }},</p>
+{% if has == "account" %}
+<p>Someone asked to register at <strong>{{ org_name }}</strong> with this email address, but it already has an account. Sign in on <a href="{{ sign_in_url }}">Student sign-in</a>, or use "Forgot password?" there.</p>
+{% else %}
+<p>Someone asked to register at <strong>{{ org_name }}</strong> with this email address, but a request with it is already open. Sign in on <a href="{{ sign_in_url }}">Student sign-in</a> with that request's email and password to see where it stands.</p>
+{% endif %}
+<p style="font-size:13px;color:#6b7280">No new request was made. If it wasn't you, ignore this email.</p>
+{% endblock %}

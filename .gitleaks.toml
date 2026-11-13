@@ -1,0 +1,16 @@
+# gitleaks configuration (Q73): the built-in rule set, minus folders that hold
+# downloaded third-party code or lockfiles full of hashes that look like secrets.
+title = "hms gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Third-party and generated files"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)dist/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)uv\.lock$''',
+  '''(^|/)package-lock\.json$''',
+]

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:18px;margin:0 0 12px">{{ title }}</h1>
+<p style="white-space:pre-line;margin:0">{{ body }}</p>
+{% if link_url %}
+<p style="margin-top:20px"><a href="{{ link_url }}" style="color:#1d4ed8">Open in the app</a></p>
+{% endif %}
+{% endblock %}
