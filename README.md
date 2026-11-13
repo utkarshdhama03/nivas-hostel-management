@@ -76,15 +76,22 @@ this repository.
 
 ## Screenshots
 
-<!-- Add images to docs/screenshots/ and replace these placeholders. -->
+All screenshots use the invented demo data (`./scripts/demo-data.sh create`).
 
-| | |
-|---|---|
-| Landing page | _docs/screenshots/landing.png_ |
-| Bed map | _docs/screenshots/bed-map.png_ |
-| Audit log | _docs/screenshots/audit-log.png_ |
-| Student portal: fees | _docs/screenshots/portal-fees.png_ |
-| Platform console | _docs/screenshots/platform.png_ |
+![Landing page](docs/screenshots/landing.png)
+*The landing page: what Nivas does, with sign-in and registration for organizations and students.*
+
+![Administrator home](docs/screenshots/admin-home.png)
+*The Administrator's home: students, free and occupied beds, and what is waiting for a decision.*
+
+![Bed map](docs/screenshots/bed-map.png)
+*The bed map: pick a hostel, building and floor; each bed shows whether it is vacant, occupied, reserved or under maintenance.*
+
+![Audit log](docs/screenshots/audit-log.png)
+*The audit log in plain sentences, grouped by day, with a category for each entry and the before and after on demand.*
+
+![Student portal: fees](docs/screenshots/portal-fees.png)
+*A student's fees: overdue charges, the deposit held, and a UPI QR code with the amount filled in.*
 
 ## Run it locally on Windows, from zero
 
